@@ -1,9 +1,9 @@
-name: Release notes generator
-author: Decathlon <developers@decathlon.com>
-description: This Github action <strong>automatically creates a release notes</strong> when a milestone is closed.
+name: Change log generator
+author: Cossey <stewart.cossey@gmail.com>
+description: This Github action automatically creates a release notes when a milestone is closed.
 runs:
   using: 'docker'
-  image: 'docker://decathlon/release-notes-generator-action:2.1.0'
+  image: 'docker://kosdk/changelog-generator-action:2.1.4'
 branding:
   icon: tag
   color: blue
