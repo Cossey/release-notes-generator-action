@@ -1,52 +1,39 @@
-<h1>
-  <p align="center">
-    Release Note Generator GitHub Action
-  </p>
-</h1>
-<p align="center">
-  This repository provides a GitHub action to <strong>automatically create a release notes</strong> when a milestone is closed.
-</p>
+# Release Note Generator GitHub Action
+
+This repository provides a GitHub action to **automatically create a release notes** when a milestone is closed. This repo was forked from the [Decathlon/release-notes-generator-action](https://github.com/Decathlon/release-notes-generator-action) repository and updated to the latest version.
 
 **Table of Contents**
   - [Common usage](#common-usage)
-  - [Why?](#why)
+  - [Purpose](#purpose)
   - [Startup](#startup)
     - [Use GitHub action](#use-github-action)
-      - [Settings for v2.0.0+ release](#settings-for-v200-release)
-      - [NOTE](#note)
-      - [Result illustration](#result-illustration)
+      - [Settings for v2.1.4+ release](#settings-for-v214-release)
     - [Configure output folder](#configure-output-folder)
     - [Custom output release file](#custom-output-release-file)
-      - [Prefixed name using v2.0.0+](#prefixed-name-using-v200)
+      - [Prefixed name using v2.1.4+](#prefixed-name-using-v214)
     - [Use Milestone title](#use-milestone-title)
-      - [Prefixed name using v2.0.0+](#prefixed-name-using-v200-1)
-      - [Result illustration](#result-illustration-1)
-  - [How to use the generated file](#how-to-use-the-generated-file)
+      - [Prefixed name using v2.1.4+](#prefixed-name-using-v214-1)
 
 ## Common usage
 
-Each time a milestone is closed, this GitHub action scans its attached issues and pull request, and automatically generates a wonderful release note.  
+Each time a milestone is closed, this GitHub action scans its attached issues and pull request, and automatically generates a release notes.  
 
-_The action uses [Spring.io release-notes generator](https://github.com/spring-io/github-release-notes-generator) tool._
+_The action uses [Spring.io changelog generator](https://github.com/spring-io/github-changelog-generator) tool._
 
-<p align="center">
-  <img src="https://github.com/Decathlon/release-notes-generator-action/raw/master/images/release_notes.png" alt="Result illustration"/>
-<p>
+![Result illustration](https://github.com/Cossey/release-notes-generator-action/raw/master/images/release_notes.png)
 
-## Why?
+## Purpose
 
-Why aren't we simply automating the release creation and push the release notes there?  
-We think in some cases it is better to keep release notes separated from the release process... yeah, maybe the right name is not release notes anymore. :) Taking as example a continuous deployment project: __anytime you push to the repository, a new version of the application is built and pushed in production.__ And so, a new release is created to complete the process; a release with a **single** feature inside.  
-We think it is not a good idea to push to 'users' a new release notes message every time you generate a changes in the source code (let us say 10 times a day?).  
-It may be a better way to communicate only once every week or once the sprint is over, which gives you a clearer and complete release notes containing the aggregated information pushed in production within the last sprint (or any days).
+This allows a convenient way to build a change log which can then be fed into the *Create release action* or written to a file for other uses. Developers no longer need to manually maintain a change log for a new release of software.
 
 ## Startup
 
 ### Use GitHub action
 
-#### Settings for v2.0.0+ release
+#### Settings for v2.1.4+ release
 
-Create a file into your root project directory: `.github/workflows/release-notes.yml`:
+The configuration is loaded from the `.github/workflows/release-notes.yml` file.
+
 ```yaml
 # Trigger the workflow on milestone events
 on: 
@@ -59,24 +46,17 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Create Release Notes
-      uses: docker://decathlon/release-notes-generator-action:2.0.1
+      uses: Cossey/release-notes-generator-action@v2.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         OUTPUT_FOLDER: temp_release_notes
-        USE_MILESTONE_TITLE: "true"
 ```
 
-#### NOTE
-It is important to add the *GITHUB_TOKEN* secret because the action needs to access to your repository Milestone/Issues information using the GitHub API.
+> It is important to add the `GITHUB_TOKEN` secret because the action needs to access to your repository Milestone/Issues information using the GitHub API.
 
 As we filtered on *milestone* the action will execute anytime an event occurs on your repository milestones.
 
-#### Result illustration
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Decathlon/release-notes-generator-action/master/images/actions_log.png" alt="Result illustration"/>
-<p>
-
+![Result illustration](https://raw.githubusercontent.com/Cossey/release-notes-generator-action/master/images/actions_log.png)
 
 The action is then filtered on *closed* events. All other events on the milestones will only log an action execution but the release notes won't be created.
 
@@ -89,39 +69,16 @@ Release note generation skipped because action was: opened
 ### SUCCEEDED Create Release Notes 14:25:55Z (21.262s)
 ```
 
-```console
-### STARTED Create Release Notes 14:25:41Z
-[...]
-Getting Action Information
-
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::        (v2.1.0.RELEASE)
-
-2019-04-14 14:25:57.901  INFO 125 --- [           main] io.spring.releasenotes.Application       : Starting Application v0.0.2 on 5cbc3fcc29cd with PID 125 (/github-release-notes-generator.jar started by root in /github/workspace)
-2019-04-14 14:25:57.922  INFO 125 --- [           main] io.spring.releasenotes.Application       : No active profile set, falling back to default profiles: default
-2019-04-14 14:26:00.905  INFO 125 --- [           main] io.spring.releasenotes.Application       : Started Application in 4.178 seconds (JVM running for 5.345)
-## :star: New Features
-
-- test 2 [#2](https://github.com/Decathlon/test/issues/2)
-
-### SUCCEEDED Create Release Notes 14:26:07Z (26.262s)
-```
-
 ### Configure output folder
 By default the release file is created into the Docker home folder. If you want you can specify a custom folder for your file creation via the `OUTPUT_FOLDER` environment variable.
 
 ### Custom output release file
-By default the output is created into *release_file.md* file. You can control the output name using environment variables in your action.
+By default the output is written to the `changelog.md` file. You can control the output name using environment variables in your action.
 
-#### Prefixed name using v2.0.0+
+#### Prefixed name using v2.1.4+
 ```YAML
 - name: Create Release Notes
-  uses: docker://decathlon/release-notes-generator-action:2.0.1
+  uses: Cossey/release-notes-generator-action@v2.1.4
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     FILENAME_PREFIX: MyMilestone
@@ -133,27 +90,21 @@ The output filename will be `MyMilestone_2` (if the milestone id is 2).
 Providing the `USE_MILESTONE_TITLE` environment variable which allow you to switch the name to the Milestone title instead of providing a *static* one.
 The title will be modified replacing spaces with underscore '_' char.
 
-#### Prefixed name using v2.0.0+
+#### Prefixed name using v2.1.4+
 
 ```YAML
 - name: Create Release Notes
-  uses: docker://decathlon/release-notes-generator-action:2.0.1
+  uses: Cossey/release-notes-generator-action@v2.1.4
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     USE_MILESTONE_TITLE: "true"
 ```
 
-#### Result illustration
-```console
-[...]
-Creating release notes for Milestone 1 into the Sprint_10.md file
-[...]
-### SUCCEEDED Create Release Notes 15:53:53Z (15.913s)
-```
-
 ## Section configuration
 You can manage the sections and how they are used by the release generator, creating the `.github/release-notes.yml` file in the repository where you activate the action.
-An example of file content (you can find detaild information direactly on the [Spring repository](https://github.com/spring-io/github-release-notes-generator))
+
+More configuration options are available at the [Spring.io changelog generator](https://github.com/spring-io/github-changelog-generator) repository.
+
 ```
 changelog:
   sections:
@@ -162,10 +113,3 @@ changelog:
   - title: "Bugs"
     labels: ["fix"]
 ```
-In the sections list you can configure each seaction with an emoji and a list of labels to take care of for this section.
-
-## How to use the generated file
-The idea is to keep the control about what to do with the release notes file.  
-So simply link a new action and: send it by mail, push it on your website, on the github wiki, ...
-
-Personally, in some of our projects, we are pushing the release note as new GitHub wiki page using the [Wiki page creator action](https://github.com/Decathlon/wiki-page-creator-action).

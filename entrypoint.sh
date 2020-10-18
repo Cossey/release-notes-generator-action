@@ -2,13 +2,8 @@
 set -e
 
 printf '\033[0;34m
-Open sourced by
-██████╗ ███████╗ ██████╗ █████╗ ████████╗██╗  ██╗██╗      ██████╗ ███╗   ██╗
-██╔══██╗██╔════╝██╔════╝██╔══██╗╚══██╔══╝██║  ██║██║     ██╔═══██╗████╗  ██║
-██║  ██║█████╗  ██║     ███████║   ██║   ███████║██║     ██║   ██║██╔██╗ ██║
-██║  ██║██╔══╝  ██║     ██╔══██║   ██║   ██╔══██║██║     ██║   ██║██║╚██╗██║
-██████╔╝███████╗╚██████╗██║  ██║   ██║   ██║  ██║███████╗╚██████╔╝██║ ╚████║
-╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
+Open sourced by Decathlon
+Updated by Cossey
 \033[0m'
 
 TRIGGER_ACTION="closed"
@@ -27,7 +22,7 @@ if [[ -z "$MILESTONE_NUMBER" ]]; then
     exit 1
 fi
 
-OUTPUT_FILENAME="release_file.md"
+OUTPUT_FILENAME="changelog.md"
 #Check if a filename prefix is provided
 if [[ ! -z "$FILENAME_PREFIX" ]]; then
     OUTPUT_FILENAME="$FILENAME_PREFIX$MILESTONE_NUMBER.md"
@@ -58,11 +53,10 @@ fi
 
 if [[ "$ACTION" == "$TRIGGER_ACTION" ]]; then
     echo "Creating release notes for Milestone $MILESTONE_NUMBER into the $OUTPUT_FILENAME file"
-    java -jar /github-release-notes-generator.jar \
-    --releasenotes.github.organization=${OWNER_ID} \
-    --releasenotes.github.repository=${REPOSITORY_NAME} \
-    --releasenotes.github.username=${GH_USERNAME} \
-    --releasenotes.github.password=${GITHUB_TOKEN} \
+    java -jar /github-changelog-generator.jar \
+    --changelog.repository=${REPOSITORY_NAME} \
+    --github.username=${GH_USERNAME} \
+    --github.password=${GITHUB_TOKEN} \
     --spring.config.location=${CONFIG_FILE} \
     ${MILESTONE_NUMBER} \
     ${OUTPUT_FOLDER}/${OUTPUT_FILENAME}
