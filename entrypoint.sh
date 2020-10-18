@@ -11,10 +11,6 @@ TRIGGER_ACTION="closed"
 echo "Getting Action Information"
 ACTION=$(/JSON.sh < "${GITHUB_EVENT_PATH}" | grep '\["action"]' | cut -f2 | sed 's/\"//g')
 MILESTONE_NUMBER=$(/JSON.sh < "${GITHUB_EVENT_PATH}" | grep '\["milestone","number"]' | cut -f2)
-REPOSITORY_NAME=$(/JSON.sh < "${GITHUB_EVENT_PATH}" | grep '\["repository","name"]' | cut -f2 | sed 's/\"//g')
-OWNER_ID=$(/JSON.sh < "${GITHUB_EVENT_PATH}" | grep '\["repository","owner","login"]' | cut -f2 | sed 's/\"//g')
-GH_USERNAME=$(/JSON.sh < "${GITHUB_EVENT_PATH}" | grep '\["sender","login"]' | cut -f2 | sed 's/\"//g')
-
 
 #Check if Milestone exists, which means actions was raised by a milestone operation.
 if [[ -z "$MILESTONE_NUMBER" ]]; then
@@ -54,8 +50,9 @@ fi
 if [[ "$ACTION" == "$TRIGGER_ACTION" ]]; then
     echo "Creating release notes for Milestone $MILESTONE_NUMBER into the $OUTPUT_FILENAME file"
     java -jar /github-changelog-generator.jar \
-    --changelog.repository=${REPOSITORY_NAME} \
-    --github.username=${GH_USERNAME} \
+    --changelog.repository=${GITHUB_REPOSITORY} \
+    --changelog.milestone-reference=id \
+    --github.username=${GITHUB_ACTOR} \
     --github.password=${GITHUB_TOKEN} \
     --spring.config.location=${CONFIG_FILE} \
     ${MILESTONE_NUMBER} \
